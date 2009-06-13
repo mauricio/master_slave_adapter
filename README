@@ -32,6 +32,6 @@ development:
   host: 10.21.34.80
   master_slave_adapter: mysql       # here's where you'll place the real database adapter name
   master:                           # and here's where you'll add the master database configuration
-    database: talkies_development   # you shouldn't specify an "adapter" here, the value at "master_slave_adapter" is going to be used
-    username: root
+    database: talkies_development   # you shouldn't specify an "adapter" here, the
+    username: root                  # value at "master_slave_adapter" is going to be used
     host: 10.21.34.82

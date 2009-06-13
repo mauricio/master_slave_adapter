@@ -18,6 +18,9 @@ module ActiveRecord
       delegate :select_all, :select_one, :select_rows, :select_value, :select_values, :to => :slave_connection
 
       def initialize( config )
+        if config[:master].blank?
+          raise "There is no :master config in the database configuration provided -> #{config.inspect} "
+        end
         self.database_config = config
         self.connections = []
       end
