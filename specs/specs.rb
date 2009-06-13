@@ -56,7 +56,7 @@ describe ActiveRecord::ConnectionAdapters::MasterSlaveAdapter do
 
   end
 
-  [ :select_all, :select_one, :select_rows, :select_value, :select_values ].each do |method|
+  ActiveRecord::ConnectionAdapters::MasterSlaveAdapter::SELECT_METHODS.each do |method|
 
     it "Should send the method '#{method}' to the slave connection" do
       @master_connection.stub!( :open_transactions ).and_return( 0 )
@@ -69,6 +69,24 @@ describe ActiveRecord::ConnectionAdapters::MasterSlaveAdapter do
       ActiveRecord::Base.with_master do
         ActiveRecord::Base.connection.send( method )
       end
+    end
+
+  end
+
+  ActiveRecord::ConnectionAdapters::SchemaStatements.instance_methods.map(&:to_sym).each do |method|
+
+    it "Should send the method '#{method}' from ActiveRecord::ConnectionAdapters::SchemaStatements to the master"  do
+      @master_connection.should_receive( method ).and_return( true )
+      ActiveRecord::Base.connection.send( method )
+    end
+
+  end
+
+  (ActiveRecord::ConnectionAdapters::SchemaStatements.instance_methods.map(&:to_sym) - ActiveRecord::ConnectionAdapters::MasterSlaveAdapter::SELECT_METHODS).each do |method|
+
+    it "Should send the method '#{method}' from ActiveRecord::ConnectionAdapters::DatabaseStatements to the master"  do
+      @master_connection.should_receive( method ).and_return( true )
+      ActiveRecord::Base.connection.send( method )
     end
 
   end
