@@ -32,8 +32,6 @@ ActiveRecord::Base.class_eval do
 
       unless self.respond_to?( "#{config[:master_slave_adapter]}_connection" )
 
-        raise "there's no method called #{config[:master_slave_adapter]}_connection"
-
         begin
           require 'rubygems'
           gem "activerecord-#{config[:master_slave_adapter]}-adapter"
