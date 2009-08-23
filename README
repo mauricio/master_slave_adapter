@@ -32,7 +32,8 @@ development:
   host: 10.21.34.80
   master_slave_adapter: mysql       # here's where you'll place the real database adapter name
   disable_connection_test: true     # this will disable the connection test before use,
-                                    # can possibly improve the performance but you could also hit stale connections, default is false
+                                    # can possibly improve the performance but you could also
+                                    # hit stale connections, default is false
   eager_load_connections: true      # connections are lazy loaded by default, you can load gem eagerly setting this to true
   master:                           # and here's where you'll add the master database configuration
     database: talkies_development   # you shouldn't specify an "adapter" here, the
