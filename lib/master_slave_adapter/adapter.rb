@@ -12,7 +12,9 @@ module ActiveRecord
       checkout :test_connections
 
       attr_accessor :connections
-      attr_accessor :database_config
+      attr_accessor :master_config
+      attr_accessor :slave_config
+      attr_accessor :disable_connection_test
 
 
       delegate :select_all, :select_one, :select_rows, :select_value, :select_values, :to => :slave_connection
@@ -21,8 +23,16 @@ module ActiveRecord
         if config[:master].blank?
           raise "There is no :master config in the database configuration provided -> #{config.inspect} "
         end
-        self.database_config = config
+        self.slave_config = config.symbolize_keys
+        self.master_config = self.slave_config.delete(:master).symbolize_keys
+        self.slave_config[:adapter] = self.slave_config.delete(:master_slave_adapter)
+        self.master_config[ :adapter ] ||= self.slave_config[:adapter]
+        self.disable_connection_test = self.slave_config.delete( :disable_connection_test ) == 'true'
         self.connections = []
+        if self.slave_config.delete( :eager_load_connections ) == 'true'
+          connect_to_master
+          connect_to_slave
+        end
       end
 
       def slave_connection
@@ -31,7 +41,7 @@ module ActiveRecord
         elsif @master_connection && @master_connection.open_transactions > 0
           master_connection
         else
-          @slave_connection ||= ActiveRecord::Base.send( "#{self.database_config[:master_slave_adapter]}_connection", self.database_config.symbolize_keys )
+          connect_to_slave
         end
       end
 
@@ -54,7 +64,7 @@ module ActiveRecord
       end
 
       def master_connection
-        @master_connection ||= ActiveRecord::Base.send( "#{self.database_config[:master_slave_adapter]}_connection", self.database_config[:master].symbolize_keys )
+        connect_to_master
       end
 
       def connections
@@ -62,6 +72,7 @@ module ActiveRecord
       end
 
       def test_connections
+        return if self.disable_connection_test
         self.connections.each do |c|
           begin
             c.select_value( 'SELECT 1', 'test select' )
@@ -94,6 +105,16 @@ module ActiveRecord
           Thread.current[ :master_slave_enabled ] = nil
         end
 
+      end
+
+      private
+
+      def connect_to_master
+        @master_connection ||= ActiveRecord::Base.send( "#{self.master_config[:adapter]}_connection", self.master_config )
+      end
+
+      def connect_to_slave
+        @slave_connection ||= ActiveRecord::Base.send( "#{self.slave_config[:adapter]}_connection", self.slave_config)
       end
 
     end

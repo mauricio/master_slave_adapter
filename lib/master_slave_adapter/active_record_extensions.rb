@@ -27,7 +27,7 @@ ActiveRecord::Base.class_eval do
 
     def master_slave_connection( config )
       config = config.symbolize_keys
-      raise "You must provide a configuration for the master database" if config[:master].blank?
+      raise "You must provide a configuration for the master database - #{config.inspect}" if config[:master].blank?
       raise "You must provide a 'master_slave_adapter' value at your database config file" if config[:master_slave_adapter].blank?
 
       unless self.respond_to?( "#{config[:master_slave_adapter]}_connection" )
