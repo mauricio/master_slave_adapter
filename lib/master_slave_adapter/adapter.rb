@@ -85,11 +85,15 @@ module ActiveRecord
       class << self
 
         def with_master
-          enable_master
-          begin
+          if master_enabled?
             yield
-          ensure
-            disable_master
+          else
+            enable_master
+            begin
+              yield
+            ensure
+              disable_master
+            end
           end
         end
 

@@ -21,7 +21,7 @@ end
 
 To use this adapter you just have to install the plugin:
 
-ruby script/plugin install git://github.com/mauricio/master_database_adapter.git
+ruby script/plugin install git://github.com/mauricio/master_slave_adapter.git
 
 And then configure it at your database.yml file:
 
